@@ -6,69 +6,74 @@ type Language = "en" | "ru";
 
 // Состояние комнаты
 type RoomState = {
-  // Язык
-  lang: Language;
-  /* Тапы */
-  // Основной баланс
-  balance: number;
-  // Текущий уровень мультитапа
-  multiTapLevel: number;
-  // Начальная стоимость улучшения мультитапа
-  multiTapCost: number;
-  /* Пинг */
-  // Состояние соединения от 0 до 100 в процентах
-  connectionQuality: number;
-  // Задержка соединения
-  latency: number;
-  /* Для уровня */
-  // Текущий уровень игрока
-  level: number;
-  // Всего накликано за всё время
-  totalClicks: number;
-  // Кликов до следующего уровня
-  nextLevelClicks: number;
-  // Максимум кликов в предыдущем уровне
-  previousLevelClicks: number;
-  // Название текущего уровня
-  levelName: string;
-  // Сколько начисляем за 1 клик
-  clickValue: number;
-  // Нужно натапать до следующего уровня
-  clicksRemainingForNextLevel: number;
-  /* Энергия */
-  // Уровень улучшения максимальной емкости энергии
-  energyMaxLevel: number;
-  // Начальная стоимость улучшения емкости
-  energyUpgradeCost: number;
-  // Максимальный лимит энергии
-  energyMax: number;
-  // Доступно энергии
-  energy: number;
-  // Сколько раз можно восстановить энергию
-  energyRestoreRemaining: number;
-  // Время до следующего восстановления (UNIX timestamp)
-  nextEnergyRestoreTime: number;
-  /* Турбо буста */
-  // Количество оставшихся активаций турбо буста за день
-  turboBoostsRemaining: number;
-  // Время, когда можно активировать следующий турбо буст (UNIX timestamp)
-  nextTurboBoostTime: number;
-  // Статус активированного турбо буста
-  turboBoostStatus: boolean;
-  /* Награда с карточек */
-  // Временная прибыль для оффлайн-периода
-  temporaryProfit: number;
-  // Текущая прибыль в час
-  profitPerHour: number;
-  /* Ежедневные награды */
-  // Стрик пользователя (количество дней подряд)
-  currentStreak: number;
-  // Последняя дата получения награды
-  lastRewardDate: number | null;
-  // Массив наград
-  availableRewards: Reward[];
-  // Массив карточек
-  userCards: Card[];
+    // Язык
+    lang: Language
+    // ID кто пригласил
+    inviteId: number,
+    /* Тапы */
+    // Основной баланс
+    balance: number,
+    // Баланс реальных денег, для выигрышей в лотереях
+    // Автоматически обновляется при подключении к комнате или раз в минуту когда игрок онлайн
+    balanceCash: number,
+    // Текущий уровень мультитапа
+    multiTapLevel: number,
+    // Начальная стоимость улучшения мультитапа
+    multiTapCost: number,
+    /* Пинг */
+    // Состояние соединения от 0 до 100 в процентах
+    connectionQuality: number,
+    // Задержка соединения
+    latency: number,
+    /* Для уровня */
+    // Текущий уровень игрока
+    level: number,
+    // Всего накликано за всё время
+    totalClicks: number,
+    // Кликов до следующего уровня
+    nextLevelClicks: number,
+    // Максимум кликов в предыдущем уровне
+    previousLevelClicks: number,
+    // Название текущего уровня
+    levelName: string,
+    // Сколько начисляем за 1 клик
+    clickValue: number,
+    // Нужно натапать до следующего уровня
+    clicksRemainingForNextLevel: number,
+    /* Энергия */
+    // Уровень улучшения максимальной емкости энергии
+    energyMaxLevel: number,
+    // Начальная стоимость улучшения емкости
+    energyUpgradeCost: number,
+    // Максимальный лимит энергии
+    energyMax: number,
+    // Доступно энергии
+    energy: number,
+    // Сколько раз можно восстановить энергию
+    energyRestoreRemaining: number,
+    // Время до следующего восстановления (UNIX timestamp)
+    nextEnergyRestoreTime: number,
+    /* Турбо буста */
+    // Количество оставшихся активаций турбо буста за день
+    turboBoostsRemaining: number,
+    // Время, когда можно активировать следующий турбо буст (UNIX timestamp)
+    nextTurboBoostTime: number,
+    // Статус активированного турбо буста
+    turboBoostStatus: boolean,
+    /* Награда с карточек */
+    // Временная прибыль для оффлайн-периода
+    temporaryProfit: number,
+    // Текущая прибыль в час
+    profitPerHour: number,
+    /* Ежедневные награды */
+    // Стрик пользователя (количество дней подряд)
+    currentStreak: number,
+    // Последняя дата получения награды
+    lastRewardDate: number | null,
+    // Массив наград
+    availableRewards: Reward[],
+    // Массив карточек
+    userCards: Card[]
 };
 
 // Типизация меню с карточками

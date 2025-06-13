@@ -1,5 +1,29 @@
 import { Emitter } from "mitt";
 import { Room } from "colyseus.js";
+import { RoomState } from "./typesNew";
+
+export interface ClientToServerEvents {
+  // ... (остальные события)
+}
+
+export interface ServerToClientEvents {
+  // ... (остальные события)
+}
+
+export interface InterProcessEvents {
+  /* key may be any string,
+   * value may be a function which accepts any number of arguments
+   */
+  [event: string]: (...args: any[]) => void;
+}
+
+export type RoomState = RoomState; 
+
+export interface Events {
+  send: ClientToServerEvents;
+  onMessage: ServerToClientEvents;
+  // listen: InterProcessEvents
+}
 
 // Доступные языки
 type Language = "en" | "ru";

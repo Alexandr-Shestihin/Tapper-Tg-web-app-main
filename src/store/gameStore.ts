@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import { create } from "zustand";
 import { Room } from "colyseus.js";
 import { RoomState } from "@/types/gameEvents";
@@ -29,7 +30,9 @@ export const useGameStore = create<GameState>((set) => ({
   stateData: null,
   playerId: null,
 
-  setRoom: (room) => set({ room }),
+  setRoom: (room) => set({
+   room: useMemo(() => room, [room]),
+}),
   setIsConnected: (isConnected) => set({ isConnected }),
   setIsConnecting: (isConnecting) => set({ isConnecting }),
   setIsReconnecting: (isReconnecting) => set({ isReconnecting }), // <-- добавили

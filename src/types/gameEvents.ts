@@ -712,6 +712,15 @@ type GameStore = {
    send: (type: keyof Events, payload?: any) => void;
 };
 
+//Состояние лотереи
+export interface LotteryState {
+   lotteryStatus: Events["LotteryStatus"] | null;
+   lotteryGlobalStatus: Events["LotteryGlobalStatus"] | null;
+   lotteryHistory: Events["LotteryHistory"] | null;
+   lotteryTickets: Events["LotteryTickets"] | null;
+   lotteryPurchaseHistory: Events["LotteryPurchaseHistory"] | null;
+}
+
 export {
    type GameStore,
    type RoomState,

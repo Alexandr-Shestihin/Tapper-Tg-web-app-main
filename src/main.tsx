@@ -7,7 +7,6 @@ import { Toaster } from "sonner";
 import "./i18n"; // 👈 Подключаем
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
     <BrowserRouter>
       <App />
       <Toaster
@@ -22,5 +21,4 @@ createRoot(document.getElementById("root")!).render(
         }}
       />
     </BrowserRouter>
-  </StrictMode>
 );

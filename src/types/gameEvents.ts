@@ -724,4 +724,5 @@ export {
    type InvitedFriend,
    type Reward,
    type Task,
+   type LotteryItem
 };

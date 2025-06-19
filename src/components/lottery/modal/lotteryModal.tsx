@@ -72,15 +72,15 @@ const info = {
     }
 }
 
-function LotteryBase({onWin, mode}) {
+function LotteryBase({onWin, mode, content}) {
+    const [activeType, setActiveType] = useState(content[+mode])
     console.log(mode)
-    const [activeType, setActiveType] = useState(info[mode])
     return(
         <>
             <div className={`lottery_frame pt-[18px] pb-[14px] relative gap-[30px] 
-                    ${activeType == info.easy && 'lottery_frame_bg-light'} 
-                    ${activeType == info.hard && 'lottery_frame_bg-elite'} 
-                    ${activeType == info.medium && 'lottery_frame_bg-optimal'}`
+                    ${activeType == content.easy && 'lottery_frame_bg-light'} 
+                    ${activeType == content.hard && 'lottery_frame_bg-elite'} 
+                    ${activeType == content.medium && 'lottery_frame_bg-optimal'}`
             }>
 
                 <img src={'/image.png'} className={'absolute z-1 top-0 right-0 w-full mix-blend-overlay h-full'}/>
@@ -275,7 +275,7 @@ function LotteryBase({onWin, mode}) {
                     </div>
                 </div>
             </div>
-            <div className={"flex flex-col gap-[8px] py-[8px]"}>
+            {/* <div className={"flex flex-col gap-[8px] py-[8px]"}>
             {activeType !== info.easy &&
                     <button onClick={() => setActiveType(info.easy)}
                             className={"ticket_rolled-button lottery_frame_bg-light"}>
@@ -324,7 +324,7 @@ function LotteryBase({onWin, mode}) {
                         </div>
                     </button>
                 }
-            </div>
+            </div> */}
 
         </>
     )
@@ -418,7 +418,7 @@ function LotteryWin() {
                         Розыгрыш
                     </div>
                     <div className={"lottery_frame_section-text taper_booster_try_progress"}>
-                        {info[winType].name}
+                        {/* {info[winType].name} */}
                     </div>
                 </div>
 
@@ -526,11 +526,11 @@ export default function LotteryModal({ isOpen, setIsOpen, mode }) {
     }
     return (
         <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
-            <DialogBackdrop
+            {/* <DialogBackdrop
                 onClick={() => setIsOpen(false)}
                 transition
                 className="fixed inset-0 bg-black/60 duration-300 ease-out data-[closed]:opacity-0"
-            />
+            /> */}
             <div className="fixed inset-0 flex w-screen overflow-y-auto items-center justify-center p-4">
                 <DialogPanel transition className="w-full h-auto duration-300 ease-out data-[closed]:opacity-0">
                     {!onWin && <LotteryBase onWin={handleWin} mode={mode} />}

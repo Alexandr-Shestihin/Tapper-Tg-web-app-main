@@ -1,8 +1,7 @@
 // src/utils/useEventHandler.ts
 
-import { useCallback } from 'react';
+import React,{ useCallback } from 'react';
 import { LotteryState } from "@/types/gameEvents";
-import React from "react";
 
 type EventHandler<T> = (data: T) => void;
 

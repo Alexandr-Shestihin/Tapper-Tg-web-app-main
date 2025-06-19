@@ -719,6 +719,8 @@ export interface LotteryState {
    lotteryHistory: Events["LotteryHistory"] | null;
    lotteryTickets: Events["LotteryTickets"] | null;
    lotteryPurchaseHistory: Events["LotteryPurchaseHistory"] | null;
+   buyTickets: Events["buyTickets"] | null;
+   getProvablyFair: Events["getProvablyFair"] | null;
 }
 
 export {

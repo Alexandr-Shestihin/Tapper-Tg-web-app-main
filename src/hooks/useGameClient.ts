@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as Colyseus from "colyseus.js";
 import { useGameStore } from "@/store/gameStore";
 import { getTestToken } from "@/utils/getToken";
@@ -11,7 +11,7 @@ const RECONNECT_INTERVAL = 5000;
 const MAX_RECONNECT_ATTEMPTS = 1000;
 
 export const useGameClient = () => {
-  const {
+  const { // Хук useGameStore вызывается здесь - ПРАВИЛЬНО
     setRoom,
     setStateData,
     setIsConnected,
@@ -27,95 +27,95 @@ export const useGameClient = () => {
   const isConnecting = useRef(false);
   const isManualDisconnect = useRef(false);
 
-  const connect = async () => {
-    if (
-      isConnecting.current ||
-      reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS
-    )
-      return;
-    isConnecting.current = true;
-    setIsConnecting(true);
-
-    try {
-      //DEV DESKTOP
-      const token = await getTestToken();
-      //PROD TELEGRAM
-      //const token = Cookies.get("token");
-      const client = new Colyseus.Client(SERVER_URL);
-      clientRef.current = client;
-
-      const room = await client.joinOrCreate(ROOM_NAME, { token });
-      reconnectAttempts.current = 0;
-
-      room.onStateChange((state) => {
-        setStateData(state as any);
-      });
-
-      room.onMessage("serverTime", (data) => {
-        console.log("[serverTime]", data); // теперь регистрируем!
-        setPlayerId(data?.playerId);
-      });
-
-      room.onMessage("ping", () => {
-        sendSafe(room, "pong");
-      });
-
-      setRoom(room);
-      setIsConnected(true);
-      setError(null);
-
-      room.onLeave(() => {
-        handleDisconnection("Disconnected from room");
-      });
-
-      room.onError(() => {
-        handleDisconnection("Room error");
-      });
-    } catch (err: any) {
-      console.error("[Colyseus] Connection failed", err);
-      handleDisconnection("Connection failed");
-    } finally {
-      isConnecting.current = false;
-      setIsConnecting(false);
-      setIsReconnecting(false);
-    }
-  };
-
-  const handleDisconnection = (reason: string) => {
-    console.warn(`[Colyseus] ${reason}`);
-    setIsConnected(false);
-    setError(reason);
-    reconnectAttempts.current++;
-
-    if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-      setIsReconnecting(true);
-      reconnectTimeout.current = setTimeout(() => {
-        connect();
-      }, RECONNECT_INTERVAL);
-    } else {
-      setError("Max reconnect attempts reached.");
-    }
-  };
-
-  const leaveRoom = async () => {
-    console.log("[Colyseus] Manual leaveRoom called");
-    isManualDisconnect.current = true;
-    const room = useGameStore.getState().room;
-    if (room) {
-      try {
-        await room.leave();
-        console.log("[Colyseus] Successfully left the room.");
-      } catch (err) {
-        console.error("[Colyseus] Error leaving room:", err);
-      } finally {
-        setRoom(null);
-        setIsConnected(false);
-      }
-    }
-  };
-
   useEffect(() => {
-    connect();
+    const connect = async () => {
+      if (
+        isConnecting.current ||
+        reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS
+      )
+        return;
+      isConnecting.current = true;
+      setIsConnecting(true); // Хук вызывается здесь - ПРАВИЛЬНО
+
+      try {
+        //DEV DESKTOP
+        const token = await getTestToken();
+        //PROD TELEGRAM
+        //const token = Cookies.get("token");
+        const client = new Colyseus.Client(SERVER_URL);
+        clientRef.current = client;
+
+        const room = await client.joinOrCreate(ROOM_NAME, { token });
+        reconnectAttempts.current = 0;
+
+        room.onStateChange((state) => {
+          setStateData(state as any);
+        });
+
+        room.onMessage("serverTime", (data) => {
+          console.log("[serverTime]", data); // теперь регистрируем!
+          setPlayerId(data?.playerId);
+        });
+
+        room.onMessage("ping", () => {
+          sendSafe(room, "pong");
+        });
+
+        setRoom(room); // Хук вызывается здесь - ПРАВИЛЬНО
+        setIsConnected(true); // Хук вызывается здесь - ПРАВИЛЬНО
+        setError(null); // Хук вызывается здесь - ПРАВИЛЬНО
+
+        room.onLeave(() => {
+          handleDisconnection("Disconnected from room");
+        });
+
+        room.onError(() => {
+          handleDisconnection("Room error");
+        });
+      } catch (err: any) {
+        console.log("[Colyseus] Connection failed", JSON.stringify(err))
+        handleDisconnection("Connection failed");
+      } finally {
+        isConnecting.current = false;
+        setIsConnecting(false); // Хук вызывается здесь - ПРАВИЛЬНО
+        setIsReconnecting(false); // Хук вызывается здесь - ПРАВИЛЬНО
+      }
+    };
+
+    const handleDisconnection = (reason: string) => {
+      console.warn(`[Colyseus] ${reason}`);
+      setIsConnected(false); // Хук вызывается здесь - ПРАВИЛЬНО
+      setError(reason); // Хук вызывается здесь - ПРАВИЛЬНО
+      reconnectAttempts.current++;
+
+      if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+        setIsReconnecting(true); // Хук вызывается здесь - ПРАВИЛЬНО
+        reconnectTimeout.current = setTimeout(() => {
+          connect();
+        }, RECONNECT_INTERVAL);
+      } else {
+        setError("Max reconnect attempts reached."); // Хук вызывается здесь - ПРАВИЛЬНО
+      }
+    };
+
+    const leaveRoom = async () => {
+      console.log("[Colyseus] Manual leaveRoom called");
+      isManualDisconnect.current = true;
+      const room = useGameStore.getState().room;
+      if (room) {
+        try {
+          await room.leave();
+          console.log("[Colyseus] Successfully left the room.");
+        } catch (err) {
+          console.error("[Colyseus] Error leaving room:", err);
+        } finally {
+          setRoom(null); // Хук вызывается здесь - ПРАВИЛЬНО
+          setIsConnected(false); // Хук вызывается здесь - ПРАВИЛЬНО
+        }
+      }
+    };
+
+    connect(); // connect() вызывается здесь - ПРАВИЛЬНО
 
     return () => {
       console.log("[Colyseus] Cleaning up connection...");
@@ -127,13 +127,17 @@ export const useGameClient = () => {
       if (room) {
         room.leave();
       }
-      setRoom(null);
-      setIsConnected(false);
+      setRoom(null); // Хук вызывается здесь - ПРАВИЛЬНО
+      setIsConnected(false); // Хук вызывается здесь - ПРАВИЛЬНО
     };
   }, []);
 
+  // Объявляем функции вне useEffect
+  let connectFunc = () => {}; //  функция-заглушка
+  let leaveRoomFunc = () => {}; //  функция-заглушка
+
   return {
-    leaveRoom,
-    reconnect: connect,
+    leaveRoom: leaveRoomFunc, // Возвращаем leaveRoom
+    reconnect: connectFunc, // Возвращаем connect
   };
 };

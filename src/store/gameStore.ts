@@ -31,7 +31,7 @@ export const useGameStore = create<GameState>((set) => ({
   playerId: null,
 
   setRoom: (room) => set({
-   room: useMemo(() => room, [room]),
+   room: room,
 }),
   setIsConnected: (isConnected) => set({ isConnected }),
   setIsConnecting: (isConnecting) => set({ isConnecting }),

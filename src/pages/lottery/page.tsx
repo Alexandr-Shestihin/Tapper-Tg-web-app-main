@@ -19,6 +19,8 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react
 
 import { useGameStore } from "@/store/gameStore";
 
+import DrawСard from '@components/drawСard';
+
 import { Events, LotteryState } from "@/types/gameEvents";
 import shallowCompare from "@/utils/shallowCompare";
 import useEventHandler from '@/utils/useEventHandler';
@@ -28,6 +30,8 @@ type LotteryGlobalStatus = Events["LotteryGlobalStatus"];
 type LotteryHistory = Events["LotteryHistory"];
 type LotteryTickets = Events["LotteryTickets"];
 type LotteryPurchaseHistory = Events["LotteryPurchaseHistory"];
+type buyTickets = Events["buyTickets"];
+type getProvablyFair = Events["getProvablyFair"];
 
 const content = [
    { id: 1, className: 'lottery_frame_bg-light', mode: 'easy' },
@@ -42,12 +46,7 @@ interface LotteryProps {
 type EventHandler<T> = (data: T) => void;
 
 export default memo(function Lottery({ }: LotteryProps) {
-   const [open, setOpen] = useState(false);
-   const [error, setError] = useState<string | null>(null);
-
-   const room = useGameStore((state) => state.room); 
-
-
+   const room = useGameStore((state) => state.room);
    // Состояние для хранения статуса всех активных розыгрышей (easy, optimal, elite)
    const [lotteryState, setLotteryState] = useState<LotteryState>({
       lotteryStatus: null,
@@ -55,53 +54,112 @@ export default memo(function Lottery({ }: LotteryProps) {
       lotteryHistory: null,
       lotteryTickets: null,
       lotteryPurchaseHistory: null,
+      buyTickets: null,
+      getProvablyFair: null
    });
 
-   console.log("%c" + 'Reload', "color:" + 'red' + ";font-weight:bold;")
+   /* console.log("%c Rerender", "color: red"); */
+   /* console.clear()
    console.log('LotteryStatus', lotteryState.lotteryStatus);
    console.log('LotteryGlobalStatus', lotteryState.lotteryGlobalStatus);
    console.log('LotteryHistory', lotteryState.lotteryHistory);
    console.log('LotteryTickets', lotteryState.lotteryTickets);
-   console.log('LotteryPurchaseHistory', lotteryState.lotteryPurchaseHistory);
+   console.log('buyTickets', lotteryState.buyTickets);
+   console.log('getProvablyFair', lotteryState.getProvablyFair); */
 
    // Используем useEventHandler для создания обработчиков событий
-   const handleLotteryStatus = useEventHandler<LotteryStatus>(
+   const handleLotteryStatus = useCallback(useEventHandler<LotteryStatus>(
       "LotteryStatus",
       setLotteryState,
       shallowCompare,
       "lotteryStatus"
-   );
+   ), [setLotteryState]);
 
-   const handleLotteryGlobalStatus = useEventHandler<LotteryGlobalStatus>(
+   const handleLotteryGlobalStatus = useCallback(useEventHandler<LotteryGlobalStatus>(
       "LotteryGlobalStatus",
       setLotteryState,
       shallowCompare,
       "lotteryGlobalStatus"
-   );
+   ), [setLotteryState]);
+
+   const handleLotteryHistory = useCallback(useEventHandler<LotteryHistory>(
+      "LotteryHistory",
+      setLotteryState,
+      shallowCompare,
+      "lotteryHistory"
+   ), [setLotteryState]);
+
+   const handleLotteryTickets = useCallback(useEventHandler<LotteryTickets>(
+      "LotteryTickets",
+      setLotteryState,
+      shallowCompare,
+      "lotteryTickets"
+   ), [setLotteryState]);
+
+   const handleLotteryPurchaseHistory = useCallback(useEventHandler<LotteryPurchaseHistory>(
+      "LotteryPurchaseHistory",
+      setLotteryState,
+      shallowCompare,
+      "lotteryPurchaseHistory"
+   ), [setLotteryState]);
+
+   const handleBuyTickets = useCallback(useEventHandler<buyTickets>(
+      "buyTickets",
+      setLotteryState,
+      shallowCompare,
+      "buyTickets"
+   ), [setLotteryState]);
+
+   const handleGetProvablyFair = useCallback(useEventHandler<getProvablyFair>(
+      "getProvablyFair",
+      setLotteryState,
+      shallowCompare,
+      "getProvablyFair"
+   ), [setLotteryState]);
 
    // Подписываемся на события
    useEffect(() => {
       if (room) {
-         // Отправляем запросы и подписываемся на события
+         // Запрос на получение статуса всех активных розыгрышей (easy, optimal, elite)
          room.send("getLotteryStatus");
          room.onMessage("LotteryStatus", handleLotteryStatus); // Используем handleLotteryStatus как функцию
 
+         //Запрос на получение статуса розыгрыша вкл\выкл
          room.send("getLotteryGlobalStatus");
          room.onMessage("LotteryGlobalStatus", handleLotteryGlobalStatus); // Используем handleLotteryGlobalStatus как функцию
 
-         // Отправляем getLotteryHistory - НО! Не подписываемся ни на какое событие
+         // для отображения глобальной истории лотерей по типу билетов с пагинацией
          room.send("getLotteryHistory");
+         room.onMessage("lotteryHistory", handleLotteryHistory);
+
+         //Запрос на получение истории билетов пользователя по ID розыгрыша с пагинацией
+         room.send("getLotteryTickets", { lotteryId: 496, page: 1, pageSize: 10 });
+         room.onMessage("LotteryTickets", handleLotteryTickets);
+
+         //для отображения истории всех покупок билетов пользователя
+         room.send("getLotteryPurchaseHistory");
+         room.onMessage("lotteryPurchaseHistory", handleLotteryPurchaseHistory);
+
+         // Отправляем данные для покупки билетов
+         /* room.send("buyTickets", { lotteryId: 484, count: 1 });
+         room.onMessage("buyTickets", handleBuyTickets); */
+
+         // Отправляем данные для проверки честности
+         /* room.send("getProvablyFair", { game: 'lottery', hash: hash });
+         room.onMessage("getProvablyFair", handleGetProvablyFair); */
 
          // Функция очистки
          return () => {
             room.removeAllListeners("LotteryStatus");
             room.removeAllListeners("LotteryGlobalStatus");
-            //  room.removeAllListeners("LotteryHistory"); // Удалите эту строку, так как подписки на LotteryHistory нет
+            room.removeAllListeners("LotteryHistory");
+            room.removeAllListeners("LotteryTickets");
+            room.removeAllListeners("LotteryPurchaseHistory");
          };
       }
 
       return () => { }; // Возвращаем пустую функцию, если room нет
-   }, [room, handleLotteryStatus, handleLotteryGlobalStatus]); // Добавляем обработчики в зависимости
+   }, [room, handleLotteryStatus, handleLotteryGlobalStatus, handleLotteryHistory, handleLotteryTickets, handleLotteryPurchaseHistory]); // Добавляем обработчики в зависимости
 
 
    const [isOpen, setIsOpen] = useState(false)
@@ -133,7 +191,27 @@ export default memo(function Lottery({ }: LotteryProps) {
       sliderRef.slickPrev();
    };
 
+   const by = () => {
+      if (room) {
+         room.send("buyTickets", { lotteryId: 496, count: 1 });
+         room.onMessage("buyTicketsResult", handleBuyTickets);
+         console.log('Покупка билета');
+         console.log('buyTickets', lotteryState.buyTickets);
+      } else console.log('Что-то пошло не так')
+   }
 
+   const choiceBG = (type: number) => {
+      if (type == 1) {
+         return "lottery_frame_bg-light"
+      } else if (type == 2) {
+         return "lottery_frame_bg-optimal"
+      } else if (type == 3) {
+         return "lottery_frame_bg-elite"
+      } else return "lottery_frame_bg-light"
+   }
+   
+   console.log(lotteryState.lotteryStatus?.data)
+ 
    return (
 
       <>
@@ -200,7 +278,14 @@ export default memo(function Lottery({ }: LotteryProps) {
                <Slider ref={(slider: RefObject<null>) => {
                   sliderRef = slider;
                }} {...settings}>
-                  <div className={'flex flex-col gap-[30px] rounded-[12px] lottery_frame_bg-light h-[240px]'}>
+                  {lotteryState.lotteryStatus?.data?.map(el => <DrawСard
+                     bg={choiceBG(el.ticketType)}
+                     key={el.id}
+                     id={el.id}
+                     price={el.price}
+                  />)}
+
+                  {/* <div className={'flex flex-col gap-[30px] rounded-[12px] lottery_frame_bg-light h-[240px]'}>
                      <div className={'flex flex-col justify-between items-center h-full w-full'}>
                         <div
                            className={'backdrop-blur w-full px-[16px] rounded-t-[12px] h-[58px] bg-[#ffffff1f] items-center justify-center'}>
@@ -272,8 +357,8 @@ export default memo(function Lottery({ }: LotteryProps) {
                            </div>
                         </div>
                      </div>
-                  </div>
-                  <div className={'flex flex-col gap-[30px] rounded-[12px] lottery_frame_bg-optimal h-[240px]'}>
+                  </div> */}
+                  {/* <div className={'flex flex-col gap-[30px] rounded-[12px] lottery_frame_bg-optimal h-[240px]'}>
                      <div className={'flex flex-col justify-between items-center h-full w-full'}>
                         <div
                            className={'backdrop-blur w-full px-[16px] rounded-t-[12px] h-[58px] bg-[#ffffff1f] items-center justify-center'}>
@@ -418,7 +503,7 @@ export default memo(function Lottery({ }: LotteryProps) {
                            </div>
                         </div>
                      </div>
-                  </div>
+                  </div> */}
                </Slider>
             </div>
 
@@ -430,7 +515,12 @@ export default memo(function Lottery({ }: LotteryProps) {
          <div className={"p-[20px] flex flex-col justify-between gap-[20px]"}>
 
 
-            <LotteryModal mode={content[currentSlide].mode} isOpen={isOpen} setIsOpen={setIsOpen} />
+            <LotteryModal
+               content={lotteryState.lotteryStatus?.data}
+               mode={lotteryState.lotteryStatus?.data[currentSlide].ticketType}
+               isOpen={isOpen}
+               setIsOpen={setIsOpen}
+            />
 
             <LotteryHistory />
 

@@ -73,7 +73,7 @@ const info = {
 }
 
 function LotteryBase({onWin, mode, content}) {
-    const [activeType, setActiveType] = useState(content[+mode])
+    const [activeType, setActiveType] = useState(content[mode])
     console.log(mode)
     return(
         <>

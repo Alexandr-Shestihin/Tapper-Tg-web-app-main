@@ -39,6 +39,12 @@ const content = [
    { id: 3, className: 'lottery_frame_bg-elite', mode: 'hard' }
 ];
 
+// Создаем ticketTypeToIndex на основе content
+const ticketTypeToIndex = content.reduce((acc, item, index) => {
+   acc[item.mode] = index;
+   return acc;
+}, {} as { [key: string]: number });
+
 interface LotteryProps {
    // Можно добавить пропсы, если они есть
 }
@@ -57,6 +63,8 @@ export default memo(function Lottery({ }: LotteryProps) {
       buyTickets: null,
       getProvablyFair: null
    });
+
+
 
    /* console.log("%c Rerender", "color: red"); */
    /* console.clear()
@@ -209,9 +217,17 @@ export default memo(function Lottery({ }: LotteryProps) {
          return "lottery_frame_bg-elite"
       } else return "lottery_frame_bg-light"
    }
-   
+
    console.log(lotteryState.lotteryStatus?.data)
- 
+
+   if (!lotteryState.lotteryStatus?.data || lotteryState.lotteryStatus.data.length === 0) {
+      return `Loading...`
+   }
+
+   const currentLottery = lotteryState.lotteryStatus.data[currentSlide];
+
+   const modeIndex = ticketTypeToIndex[currentLottery.ticketType];
+
    return (
 
       <>
@@ -517,7 +533,7 @@ export default memo(function Lottery({ }: LotteryProps) {
 
             <LotteryModal
                content={lotteryState.lotteryStatus?.data}
-               mode={lotteryState.lotteryStatus?.data[currentSlide].ticketType}
+               mode={modeIndex}
                isOpen={isOpen}
                setIsOpen={setIsOpen}
             />
